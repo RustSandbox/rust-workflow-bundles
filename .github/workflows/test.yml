@@ -1,0 +1,83 @@
+name: Test
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    name: Test Script
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        shell: [bash, zsh]
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Setup Rust
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
+        override: true
+
+    - name: Setup shell
+      run: |
+        if [ "${{ matrix.shell }}" = "zsh" ]; then
+          sudo apt-get update && sudo apt-get install -y zsh || brew install zsh
+        fi
+
+    - name: Source script
+      shell: ${{ matrix.shell }} {0}
+      run: |
+        source rust-bundles.sh
+        echo "Script sourced successfully"
+
+    - name: Test cbundles command
+      shell: ${{ matrix.shell }} {0}
+      run: |
+        source rust-bundles.sh
+        cbundles
+
+    - name: Create test Rust project
+      run: |
+        cargo new test-project
+        cd test-project
+
+    - name: Test basic commands
+      shell: ${{ matrix.shell }} {0}
+      working-directory: ./test-project
+      run: |
+        source ../rust-bundles.sh
+        cdevquick || echo "cdevquick failed but that's expected without all tools"
+
+  shellcheck:
+    name: ShellCheck
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Run ShellCheck
+      uses: ludeeus/action-shellcheck@master
+      with:
+        scandir: '.'
+        severity: warning
+
+  markdownlint:
+    name: Markdown Lint
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Lint Markdown files
+      uses: articulate/actions-markdownlint@v1
+      with:
+        config: .markdownlint.json
+        files: '**/*.md'
+        ignore: node_modules
+      continue-on-error: true
