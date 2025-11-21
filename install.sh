@@ -76,6 +76,7 @@ echo "$SOURCE_LINE" >> "$RC_FILE"
 echo -e "${GREEN}✓${NC} Added to $RC_FILE"
 
 # Source the file in current session
+# shellcheck source=/dev/null
 source "$BUNDLES_FILE"
 
 echo -e "${GREEN}✓${NC} Sourced in current session"

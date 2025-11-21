@@ -87,7 +87,8 @@ clibrelease() {
 cexamples() {
   echo "📚 Checking all examples..." &&
   for example in examples/*.rs; do
-    local name=$(basename "$example" .rs)
+    local name
+    name=$(basename "$example" .rs)
     echo "▸ Testing example: $name" &&
     cargo run --example "$name" || return 1
   done &&
