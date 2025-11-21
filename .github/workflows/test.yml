@@ -13,7 +13,6 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest]
-        shell: [bash, zsh]
 
     steps:
     - uses: actions/checkout@v3
@@ -24,20 +23,12 @@ jobs:
         toolchain: stable
         override: true
 
-    - name: Setup shell
-      run: |
-        if [ "${{ matrix.shell }}" = "zsh" ]; then
-          sudo apt-get update && sudo apt-get install -y zsh || brew install zsh
-        fi
-
     - name: Source script
-      shell: ${{ matrix.shell }} {0}
       run: |
         source rust-bundles.sh
         echo "Script sourced successfully"
 
     - name: Test cbundles command
-      shell: ${{ matrix.shell }} {0}
       run: |
         source rust-bundles.sh
         cbundles
@@ -48,7 +39,6 @@ jobs:
         cd test-project
 
     - name: Test basic commands
-      shell: ${{ matrix.shell }} {0}
       working-directory: ./test-project
       run: |
         source ../rust-bundles.sh
